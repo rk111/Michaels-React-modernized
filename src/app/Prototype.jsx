@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './prototype.css';
+import Cart from './Cart.jsx';
 
 const categories = ['Shop categories', 'Weekly ad', 'Coupons', 'Projects & ideas', 'Classes', 'Custom framing', 'Michaels Rewards'];
 const footerGroups = [
@@ -25,7 +26,18 @@ export default function Prototype() {
   const [subscription, setSubscription] = useState(true);
   const [frequency, setFrequency] = useState('30');
   const [quantity, setQuantity] = useState(1);
-  const [count, setCount] = useState(3);
+  const [page, setPage] = useState('product');
+  const [items, setItems] = useState([
+    { id: 'paint', name: 'Ohuhu oil paint set, 24 colors', price: 2159, quantity: 1, subscription: true, frequency: '30' },
+    { id: 'canvas', name: "Artist's Loft® canvas panel pack, 9 × 12 in.", price: 1299, quantity: 1 },
+    { id: 'brushes', name: 'Taklon paintbrush value pack, 10 pieces', price: 799, quantity: 1 },
+  ]);
+  const count = items.reduce((total, item) => total + item.quantity, 0);
+  const setCount = () => setItems(current => {
+    const id = `paint-${subscription}-${frequency}`;
+    const match = current.find(item => item.id === id);
+    return match ? current.map(item => item.id === id ? { ...item, quantity: item.quantity + quantity } : item) : [...current, { id, name: 'Ohuhu oil paint set, 24 colors', price: subscription ? 2159 : 2399, quantity, subscription, frequency }];
+  });
   const [favorite, setFavorite] = useState(false);
   const [menu, setMenu] = useState(false);
   const [announcement, setAnnouncement] = useState('');
@@ -35,12 +47,12 @@ export default function Prototype() {
       <div className="header-row">
         <p className="wordmark">Michaels</p>
         <input className="search" aria-label="Search products, projects and more" placeholder="Search products, projects and more" />
-        <div className="desktop-utilities"><span>Find a store</span><span>Sign in</span><strong>Cart ({count})</strong></div>
-        <div className="mobile-utilities"><button aria-label="Menu" aria-expanded={menu} onClick={() => setMenu(!menu)}>☰</button><button aria-label="Favorites" aria-pressed={favorite} onClick={() => setFavorite(!favorite)}>♡</button><strong>Bag {count}</strong></div>
+        <div className="desktop-utilities"><span>Find a store</span><span>Sign in</span><button onClick={() => setPage('cart')}><strong>Cart ({count})</strong></button></div>
+        <div className="mobile-utilities"><button aria-label="Menu" aria-expanded={menu} onClick={() => setMenu(!menu)}>☰</button><button aria-label="Favorites" aria-pressed={favorite} onClick={() => setFavorite(!favorite)}>♡</button><button aria-label={`Cart (${count})`} onClick={() => setPage('cart')}><strong>Bag {count}</strong></button></div>
       </div>
       <nav aria-label="Categories" className={`categories ${menu ? 'open' : ''}`}>{categories.map(item => <span key={item}>{item}</span>)}</nav>
     </header>
-    <main className="product-content">
+    {page === 'cart' ? <Cart items={items} setItems={setItems} onShop={() => setPage('product')} /> : <main className="product-content">
       <p className="breadcrumb">Home  /  Art supplies  /  Painting  /  Oil paint</p>
       <div className="product-columns">
         <section className="gallery" aria-label="Product gallery">
@@ -78,7 +90,7 @@ export default function Prototype() {
         <hr /><h2>Shipping &amp; returns    +</h2>
         <p className="small muted">View shipping options and return eligibility before placing your order.</p>
       </section>
-    </main>
+    </main>}
     <footer>
       <h2>Get inspired. Get rewarded.</h2>
       <p>Join Michaels Rewards for offers, inspiration and more.</p>
