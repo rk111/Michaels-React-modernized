@@ -42,8 +42,14 @@ function ProductPanel({ purchaseType, onPurchaseType, frequency, setFrequency, q
         </div>
       </article>
       <article className="space-y-4">
-        <h1 className="text-[32px] font-bold leading-tight text-text-primary">Ohuhu oil paint set, 24 colors</h1>
-        <p className="text-text-muted">24 colors · Paint tubes · Color range</p>
+        <p className="text-sm font-bold text-brand-red">Ohuhu</p>
+        <h1 className="text-2xl font-bold leading-normal text-text-primary">Oil paint set, 24 oil-based colors</h1>
+        <p className="text-sm text-text-muted">24 × 12 ml tubes · Artist painting supplies</p>
+        <p className="text-sm">★★★★☆   4.6   (128 reviews)</p>
+        <p className="text-2xl font-bold">${isSubscription ? '21.59' : '23.99'}</p>
+        <p className="font-bold">Shipping available</p>
+        <p className="text-sm text-text-muted">Ships to your home · Estimated arrival Sep 18–21</p>
+        <hr className="border-border" />
 
         <fieldset className="space-y-3" data-figma-section="32">
           <legend className="sr-only">Purchase type</legend>
@@ -194,7 +200,10 @@ export default function App() {
       <Header />
       <ProductPanel
         purchaseType={purchaseType}
-        onPurchaseType={setPurchaseType}
+        onPurchaseType={(type) => {
+          setPurchaseType(type);
+          if (type === 'subscription' && payment === 'Affirm') setPayment('Credit/Debit Card');
+        }}
         frequency={frequency}
         setFrequency={setFrequency}
         qty={qty}
@@ -207,11 +216,13 @@ export default function App() {
         <p>Keep creating with supplies delivered on your schedule.</p>
         <div className="mt-4 rounded-lg border border-border p-4">
           <p className="font-bold">Ohuhu oil paint set, 24 colors</p>
-          <p>Subscription</p>
-          <p>{frequency}</p>
-          <p>$21.59 · Qty {qty}</p>
-          <button className="mr-3 underline">Change frequency</button>
-          <button className="underline">Switch to one-time purchase</button>
+          <p>{purchaseType === 'subscription' ? 'Subscription' : 'One-time purchase'}</p>
+          {purchaseType === 'subscription' && <p>{frequency}</p>}
+          <p>${purchaseType === 'subscription' ? '21.59' : '23.99'} · Qty {qty}</p>
+          {purchaseType === 'subscription' && <>
+            <button className="mr-3 underline" onClick={() => document.getElementById('frequency')?.focus()}>Change frequency</button>
+            <button className="underline" onClick={() => setPurchaseType('one-time')}>Switch to one-time purchase</button>
+          </>}
         </div>
         <div className="mt-4 rounded-lg border border-border p-4">
           <p className="font-bold">Artist's Loft® canvas panel pack, 9 × 12 in.</p>
