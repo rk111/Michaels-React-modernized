@@ -1,12 +1,16 @@
 import { useState } from 'react';
 import './cart.css';
+import Checkout from './Checkout.jsx';
 
 export default function Cart({ items, setItems, onShop }) {
   const [editing, setEditing] = useState(null);
-  const [saved, setSaved] = useState([]);
+  const saved = items.filter(item => item.saved).map(item => item.id);
+  const setSaved = updater => setItems(current => {
+    const ids = updater(current.filter(item => item.saved).map(item => item.id));
+    return current.map(item => ({ ...item, saved: ids.includes(item.id) }));
+  });
   const [message, setMessage] = useState('');
   const [checkout, setCheckout] = useState(false);
-  const [payment, setPayment] = useState('Credit/Debit Card');
   const active = items.filter(item => !saved.includes(item.id));
   const count = active.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = active.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -19,7 +23,7 @@ export default function Cart({ items, setItems, onShop }) {
     <h1>{checkout ? 'Secure checkout' : `Your cart (${count} items)`}</h1>
     <p className="muted">{checkout ? '1 Shipping ✓ / 2 Payment / 3 Review' : 'Keep creating with supplies delivered on your schedule.'}</p>
     <div className="cart-columns"><section className="cart-items" aria-label={checkout ? 'Payment' : 'Cart items'}>
-      {checkout ? <><h2>Choose a payment method</h2><p role="note">Local prototype only. No payment will be collected or order submitted.</p><fieldset><legend>Payment method</legend>{['Credit/Debit Card', 'PayPal', 'Google Pay', 'Affirm'].map(method => <label className="cart-item" key={method}><input type="radio" name="payment" checked={payment === method} disabled={method === 'Affirm' && subscriptions.length > 0} onChange={() => setPayment(method)} /> {method}</label>)}</fieldset>{subscriptions.length > 0 && <p>Affirm can't be used with a Subscribe &amp; Save item. Choose another payment method, or remove the subscription item from your cart.</p>}<button className="cart-link" onClick={() => setCheckout(false)}>Return to cart</button></> : <>
+      {checkout ? <Checkout items={active} onBack={() => setCheckout(false)} onShop={onShop} /> : <>
       {items.map(item => <article className="cart-item" key={item.id} aria-label={item.name}>
         <div className="cart-details"><div><h3>{item.name}</h3><p>{item.subscription ? <span className="subscription-badge">Subscription</span> : 'One-time purchase'}</p>{item.subscription && <p className="small muted">Every {item.frequency} days</p>}<strong>{money(item.price)}   ·   Qty {item.quantity}</strong></div></div>
         {saved.includes(item.id) ? <button className="cart-link" onClick={() => setSaved(current => current.filter(id => id !== item.id))}>Move to cart</button> : item.subscription ? <><button className="cart-link" onClick={() => setEditing(editing === item.id ? null : item.id)}>Change frequency</button>{editing === item.id && <label>Delivery frequency<select value={item.frequency} onChange={event => update(item.id, { frequency: event.target.value })}>{['30', '60', '90'].map(days => <option value={days} key={days}>Every {days} days</option>)}</select></label>}<button className="cart-link" onClick={() => update(item.id, { subscription: false, price: 2399 })}>Switch to one-time purchase</button></> : <div className="small muted"><button onClick={() => setSaved(current => [...current, item.id])}>Save for later</button>　·　<button onClick={() => setItems(current => current.filter(row => row.id !== item.id))}>Remove</button></div>}

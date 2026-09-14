@@ -12,3 +12,11 @@
 .cart-content button:disabled { opacity:.5; cursor:not-allowed; }
 @media(max-width:1000px) { .cart-columns { grid-template-columns:minmax(0,1fr); }.cart-content { padding:24px; } }
 @media(max-width:767px) { .cart-content { padding:16px; }.cart-summary { padding:16px; } }
+.checkout-form fieldset { display:flex; flex-direction:column; gap:16px; min-width:0; }
+.checkout-form label { display:block; }
+.checkout-form input:not([type=radio]):not([type=checkbox]) { display:block; width:100%; min-width:0; border:1px solid var(--color-border); border-radius:8px; padding:12px; height:48px; }
+.checkout-form input[type=radio], .checkout-form input[type=checkbox] { accent-color:var(--color-brand-red); }
+.checkout-pair { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; }
+.cart-content :focus-visible { outline:2px solid var(--color-brand-red); outline-offset:3px; }
+.cart-content h1 { font-size:24px; font-weight:700; line-height:36px; }
+

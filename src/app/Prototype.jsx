@@ -32,7 +32,7 @@ export default function Prototype() {
     { id: 'canvas', name: "Artist's Loft® canvas panel pack, 9 × 12 in.", price: 1299, quantity: 1 },
     { id: 'brushes', name: 'Taklon paintbrush value pack, 10 pieces', price: 799, quantity: 1 },
   ]);
-  const count = items.reduce((total, item) => total + item.quantity, 0);
+  const count = items.filter(item => !item.saved).reduce((total, item) => total + item.quantity, 0);
   const setCount = () => setItems(current => {
     const id = `paint-${subscription}-${frequency}`;
     const match = current.find(item => item.id === id);
