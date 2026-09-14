@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './prototype.css';
 import Cart from './Cart.jsx';
 
@@ -26,7 +26,16 @@ export default function Prototype() {
   const [subscription, setSubscription] = useState(true);
   const [frequency, setFrequency] = useState('30');
   const [quantity, setQuantity] = useState(1);
-  const [page, setPage] = useState('product');
+  const [page, updatePage] = useState(() => window.location.hash === '#cart' ? 'cart' : 'product');
+  const setPage = next => {
+    window.location.hash = next;
+    updatePage(next);
+  };
+  useEffect(() => {
+    const syncPage = () => updatePage(window.location.hash === '#cart' ? 'cart' : 'product');
+    window.addEventListener('hashchange', syncPage);
+    return () => window.removeEventListener('hashchange', syncPage);
+  }, []);
   const [items, setItems] = useState([
     { id: 'paint', name: 'Ohuhu oil paint set, 24 colors', price: 2159, quantity: 1, subscription: true, frequency: '30' },
     { id: 'canvas', name: "Artist's Loft® canvas panel pack, 9 × 12 in.", price: 1299, quantity: 1 },
@@ -34,9 +43,8 @@ export default function Prototype() {
   ]);
   const count = items.filter(item => !item.saved).reduce((total, item) => total + item.quantity, 0);
   const setCount = () => setItems(current => {
-    const id = `paint-${subscription}-${frequency}`;
-    const match = current.find(item => item.id === id);
-    return match ? current.map(item => item.id === id ? { ...item, quantity: item.quantity + quantity } : item) : [...current, { id, name: 'Ohuhu oil paint set, 24 colors', price: subscription ? 2159 : 2399, quantity, subscription, frequency }];
+    const match = current.find(item => item.name === 'Ohuhu oil paint set, 24 colors' && Boolean(item.subscription) === subscription && (!subscription || item.frequency === frequency));
+    return match ? current.map(item => item.id === match.id ? { ...item, saved: false, quantity: item.quantity + quantity } : item) : [...current, { id: crypto.randomUUID(), name: 'Ohuhu oil paint set, 24 colors', price: subscription ? 2159 : 2399, quantity, subscription, frequency }];
   });
   const [favorite, setFavorite] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -81,7 +89,8 @@ export default function Prototype() {
           <button className="pill" onClick={() => { setCount(count + quantity); setAnnouncement(`${quantity} ${subscription ? 'subscription' : 'one-time'} item${quantity > 1 ? 's' : ''} added to cart${subscription ? `, every ${frequency} days` : ''}.`); }}>{subscription ? 'Add subscription to cart' : 'Add to cart'}</button>
           <button className="pill secondary" aria-pressed={favorite} onClick={() => setFavorite(!favorite)}>Save to favorites</button>
           <p className="small muted">Secure checkout · Easy returns</p>
-          <p role="status" className="sr-only">{announcement}</p>
+          <p role="status">{announcement}</p>
+          {announcement && <button className="pill secondary" onClick={() => setPage('cart')}>View cart</button>}
         </section>
       </div>
       <section className="product-information" aria-label="Product information">

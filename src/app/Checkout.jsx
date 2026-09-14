@@ -1,12 +1,17 @@
 import { useState } from 'react';
 
 // This flow deliberately never sends or persists payment details.
-export default function Checkout({ items, onBack, onShop }) {
-  const [step, setStep] = useState('payment');
+export default function Checkout({ items, onBack, onShop, onStepChange = () => {} }) {
+  const [step, updateStep] = useState('payment');
+  const setStep = next => {
+    updateStep(next);
+    onStepChange(next);
+  };
   const [method, setMethod] = useState('Credit/Debit Card');
   const [consent, setConsent] = useState(false);
   const subscription = items.some(item => item.subscription);
   const money = value => `$${(value / 100).toFixed(2)}`;
+  if (!items.length) return <section aria-label="Empty checkout"><h2>Your cart is empty.</h2><button className="pill" onClick={onShop}>Continue shopping</button></section>;
   if (step === 'confirmation' || step === 'receipt') return <section className="cart-items" aria-label="Order confirmation">
     <h2>{step === 'receipt' ? 'Your Michaels order is confirmed' : '✓ Thanks, Jamie. Your order is confirmed.'}</h2>
     <p role="status">Demo order only. No payment was taken and no email was sent.</p>

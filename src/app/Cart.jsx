@@ -20,10 +20,10 @@ export default function Cart({ items, setItems, onShop }) {
   const money = cents => `$${(cents / 100).toFixed(2)}`;
   const update = (id, patch) => setItems(current => current.map(item => item.id === id ? { ...item, ...patch } : item));
   return <main className="cart-content">
-    <h1>{checkout ? 'Secure checkout' : `Your cart (${count} items)`}</h1>
-    <p className="muted">{checkout ? '1 Shipping ✓ / 2 Payment / 3 Review' : 'Keep creating with supplies delivered on your schedule.'}</p>
+    <h1>{checkout === 'confirmation' ? 'Order confirmation' : checkout === 'receipt' ? 'Email receipt' : checkout ? 'Secure checkout' : `Your cart (${count} items)`}</h1>
+    {checkout !== 'confirmation' && checkout !== 'receipt' && <p className="muted">{checkout ? (checkout === 'review' ? '1 Shipping ✓ / 2 Payment ✓ / 3 Review' : '1 Shipping ✓ / 2 Payment / 3 Review') : 'Keep creating with supplies delivered on your schedule.'}</p>}
     <div className="cart-columns"><section className="cart-items" aria-label={checkout ? 'Payment' : 'Cart items'}>
-      {checkout ? <Checkout items={active} onBack={() => setCheckout(false)} onShop={onShop} /> : <>
+      {checkout ? <Checkout items={active} onStepChange={setCheckout} onBack={() => setCheckout(false)} onShop={onShop} /> : <>
       {items.map(item => <article className="cart-item" key={item.id} aria-label={item.name}>
         <div className="cart-details"><div><h3>{item.name}</h3><p>{item.subscription ? <span className="subscription-badge">Subscription</span> : 'One-time purchase'}</p>{item.subscription && <p className="small muted">Every {item.frequency} days</p>}<strong>{money(item.price)}   ·   Qty {item.quantity}</strong></div></div>
         {saved.includes(item.id) ? <button className="cart-link" onClick={() => setSaved(current => current.filter(id => id !== item.id))}>Move to cart</button> : item.subscription ? <><button className="cart-link" onClick={() => setEditing(editing === item.id ? null : item.id)}>Change frequency</button>{editing === item.id && <label>Delivery frequency<select value={item.frequency} onChange={event => update(item.id, { frequency: event.target.value })}>{['30', '60', '90'].map(days => <option value={days} key={days}>Every {days} days</option>)}</select></label>}<button className="cart-link" onClick={() => update(item.id, { subscription: false, price: 2399 })}>Switch to one-time purchase</button></> : <div className="small muted"><button onClick={() => setSaved(current => [...current, item.id])}>Save for later</button>　·　<button onClick={() => setItems(current => current.filter(row => row.id !== item.id))}>Remove</button></div>}

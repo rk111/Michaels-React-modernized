@@ -4,6 +4,25 @@ import { describe, expect, it, vi } from 'vitest';
 import Checkout from './Checkout';
 const items = [{ id: 'paint', name: 'Ohuhu oil paint set, 24 colors', price: 2159, quantity: 1, subscription: true, frequency: '60' }];
 describe('Local checkout', () => {
+  it('blocks empty orders and offers a return to shopping', async () => {
+    const shop = vi.fn();
+    render(<Checkout items={[]} onBack={vi.fn()} onShop={shop} />);
+    expect(screen.queryByRole('button', { name: 'Continue to review' })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Continue shopping' }));
+    expect(shop).toHaveBeenCalledOnce();
+  });
+  it('reports review, confirmation and receipt transitions to the page shell', async () => {
+    const changed = vi.fn();
+    const user = userEvent.setup();
+    render(<Checkout items={[{ ...items[0], subscription: false }]} onBack={vi.fn()} onShop={vi.fn()} onStepChange={changed} />);
+    await user.click(screen.getByRole('radio', { name: 'PayPal' }));
+    await user.click(screen.getByRole('button', { name: 'Continue to review' }));
+    expect(changed).toHaveBeenLastCalledWith('review');
+    await user.click(screen.getByRole('button', { name: 'Place demo order' }));
+    expect(changed).toHaveBeenLastCalledWith('confirmation');
+    await user.click(screen.getByRole('button', { name: 'View receipt' }));
+    expect(changed).toHaveBeenLastCalledWith('receipt');
+  });
   it('requires consent, reviews and displays a demo confirmation and receipt', async () => {
     const user = userEvent.setup();
     render(<Checkout items={items} onBack={vi.fn()} onShop={vi.fn()} />);
