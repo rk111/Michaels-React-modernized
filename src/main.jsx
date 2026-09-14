@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './app/App.jsx';
+import App from './app/Prototype.jsx';
 import '@fontsource/arimo/400.css';
 import '@fontsource/arimo/700.css';
 import '@fontsource/yellowtail/400.css';
