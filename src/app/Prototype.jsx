@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import './prototype.css';
 import Cart from './Cart.jsx';
+import MiniCart from './MiniCart.jsx';
 
 const categories = ['Shop categories', 'Weekly ad', 'Coupons', 'Projects & ideas', 'Classes', 'Custom framing', 'Michaels Rewards'];
 const footerGroups = [
@@ -46,6 +47,7 @@ export default function Prototype() {
     const match = current.find(item => item.name === 'Ohuhu oil paint set, 24 colors' && Boolean(item.subscription) === subscription && (!subscription || item.frequency === frequency));
     return match ? current.map(item => item.id === match.id ? { ...item, saved: false, quantity: item.quantity + quantity } : item) : [...current, { id: crypto.randomUUID(), name: 'Ohuhu oil paint set, 24 colors', price: subscription ? 2159 : 2399, quantity, subscription, frequency }];
   });
+  const [miniCartOpen, setMiniCartOpen] = useState(false);
   const [favorite, setFavorite] = useState(false);
   const [menu, setMenu] = useState(false);
   const [announcement, setAnnouncement] = useState('');
@@ -55,8 +57,8 @@ export default function Prototype() {
       <div className="header-row">
         <p className="wordmark">Michaels</p>
         <input className="search" aria-label="Search products, projects and more" placeholder="Search products, projects and more" />
-        <div className="desktop-utilities"><span>Find a store</span><span>Sign in</span><button onClick={() => setPage('cart')}><strong>Cart ({count})</strong></button></div>
-        <div className="mobile-utilities"><button aria-label="Menu" aria-expanded={menu} onClick={() => setMenu(!menu)}>☰</button><button aria-label="Favorites" aria-pressed={favorite} onClick={() => setFavorite(!favorite)}>♡</button><button aria-label={`Cart (${count})`} onClick={() => setPage('cart')}><strong>Bag {count}</strong></button></div>
+        <div className="desktop-utilities"><span>Find a store</span><span>Sign in</span><button aria-haspopup="dialog" aria-expanded={miniCartOpen} onClick={() => setMiniCartOpen(true)}><strong>Cart ({count})</strong></button></div>
+        <div className="mobile-utilities"><button aria-label="Menu" aria-expanded={menu} onClick={() => setMenu(!menu)}>☰</button><button aria-label="Favorites" aria-pressed={favorite} onClick={() => setFavorite(!favorite)}>♡</button><button aria-label={`Cart (${count})`} aria-haspopup="dialog" aria-expanded={miniCartOpen} onClick={() => setMiniCartOpen(true)}><strong>Bag {count}</strong></button></div>
       </div>
       <nav aria-label="Categories" className={`categories ${menu ? 'open' : ''}`}>{categories.map(item => <span key={item}>{item}</span>)}</nav>
     </header>
@@ -86,7 +88,7 @@ export default function Prototype() {
             <div className="frequency-control"><select id="delivery-frequency" value={frequency} onChange={event => setFrequency(event.target.value)}>{['30', '60', '90'].map(days => <option key={days} value={days}>Every {days} days</option>)}</select><span aria-hidden="true">⌄</span></div>
             <p className="small muted">Billed each delivery. Cancel anytime.</p></>}
           <div className="quantity"><span>Quantity</span><div><button aria-label="Decrease quantity" disabled={quantity === 1} onClick={() => setQuantity(quantity - 1)}>−</button><output aria-label="Quantity">{quantity}</output><button aria-label="Increase quantity" onClick={() => setQuantity(quantity + 1)}>+</button></div></div>
-          <button className="pill" onClick={() => { setCount(count + quantity); setAnnouncement(`${quantity} ${subscription ? 'subscription' : 'one-time'} item${quantity > 1 ? 's' : ''} added to cart${subscription ? `, every ${frequency} days` : ''}.`); }}>{subscription ? 'Add subscription to cart' : 'Add to cart'}</button>
+          <button className="pill" onClick={() => { setCount(); setMiniCartOpen(true); setAnnouncement(`${quantity} ${subscription ? 'subscription' : 'one-time'} item${quantity > 1 ? 's' : ''} added to cart${subscription ? `, every ${frequency} days` : ''}.`); }}>{subscription ? 'Add subscription to cart' : 'Add to cart'}</button>
           <button className="pill secondary" aria-pressed={favorite} onClick={() => setFavorite(!favorite)}>Save to favorites</button>
           <p className="small muted">Secure checkout · Easy returns</p>
           <p role="status">{announcement}</p>
@@ -100,6 +102,7 @@ export default function Prototype() {
         <p className="small muted">View shipping options and return eligibility before placing your order.</p>
       </section>
     </main>}
+    {miniCartOpen && <MiniCart items={items} setItems={setItems} onClose={() => setMiniCartOpen(false)} onViewCart={() => { setMiniCartOpen(false); setPage('cart'); }} />}
     <footer data-figma-section="03">
       <h2>Get inspired. Get rewarded.</h2>
       <p>Join Michaels Rewards for offers, inspiration and more.</p>

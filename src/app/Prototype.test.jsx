@@ -4,7 +4,11 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import Prototype from './Prototype';
 
 describe('Prototype 10', () => {
-  beforeEach(() => window.history.replaceState(null, '', '/'));
+  beforeEach(() => {
+    window.history.replaceState(null, '', '/');
+    HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', ''); };
+    HTMLDialogElement.prototype.close = function () { this.removeAttribute('open'); };
+  });
   it('opens the cart directly and returns to the product', async () => {
     window.history.replaceState(null, '', '/#cart');
     const user = userEvent.setup();
@@ -17,7 +21,7 @@ describe('Prototype 10', () => {
     const user = userEvent.setup();
     render(<Prototype />);
     await user.click(screen.getByRole('button', { name: 'Add subscription to cart' }));
-    await user.click(screen.getByRole('button', { name: 'View cart' }));
+    await user.click(screen.getByRole('button', { name: 'View cart & checkout' }));
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Your cart (4 items)');
     expect(screen.getAllByRole('article', { name: 'Ohuhu oil paint set, 24 colors' })).toHaveLength(1);
     await user.click(screen.getByRole('button', { name: 'Continue to checkout' }));
