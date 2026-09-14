@@ -50,7 +50,7 @@ export default function Prototype() {
   const [menu, setMenu] = useState(false);
   const [announcement, setAnnouncement] = useState('');
   return <div className="prototype" data-figma-section={String(26 + ['30', '60', '90'].indexOf(frequency))}>
-    <header>
+    <header data-figma-section="01">
       <p className="promotion">Make more. Save more. Shop weekly deals</p>
       <div className="header-row">
         <p className="wordmark">Michaels</p>
@@ -100,7 +100,7 @@ export default function Prototype() {
         <p className="small muted">View shipping options and return eligibility before placing your order.</p>
       </section>
     </main>}
-    <footer>
+    <footer data-figma-section="03">
       <h2>Get inspired. Get rewarded.</h2>
       <p>Join Michaels Rewards for offers, inspiration and more.</p>
       <a className="pill rewards" href="https://www.michaels.com/rewards">Join Michaels Rewards</a>
